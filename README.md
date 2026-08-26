@@ -93,9 +93,9 @@ docs/
 
 O repositório inclui `vercel.json`, além de `Dockerfile` e `docker-compose.yml`. Uma URL só deve ser apresentada aqui como backend público após healthcheck externo bem-sucedido.
 
-## Roadmap
+## Evoluções futuras
 
-Consulte [`docs/MELHORIAS_E_ROADMAP.md`](docs/MELHORIAS_E_ROADMAP.md).
+A versão atual é executável e avaliável no escopo descrito acima. Possíveis extensões de produto e engenharia, explicitamente **fora do escopo atual**, estão em [`docs/MELHORIAS_E_ROADMAP.md`](docs/MELHORIAS_E_ROADMAP.md).
 
 ## Desenvolvimento assistido por IA
 
