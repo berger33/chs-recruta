@@ -2,7 +2,7 @@
 
 Sistema de recrutamento e seleção com backend em **Python + FastAPI**, persistência via **SQLAlchemy/PostgreSQL**, autenticação com **RBAC**, trilha de auditoria, testes automatizados, Docker e CI.
 
-> Este repositório é a versão backend-first do CHS Recruta, extraída do portfólio principal para facilitar avaliação técnica, execução local e deploy.
+> Este repositório é a versão backend-first do CHS Recruta, separada do portfólio principal para facilitar avaliação técnica, execução local e deploy.
 
 ## Stack
 
@@ -18,7 +18,7 @@ Sistema de recrutamento e seleção com backend em **Python + FastAPI**, persist
 - referências financeiras;
 - trilha de auditoria;
 - exportação CSV;
-- interface web simples consumindo a própria API;
+- interface web simples;
 - documentação OpenAPI em `/docs`.
 
 ## Executar localmente
@@ -38,12 +38,7 @@ Acesse:
 - OpenAPI: `http://127.0.0.1:8000/docs`
 - healthcheck: `http://127.0.0.1:8000/health`
 
-Credenciais de demonstração criadas pelo seed de desenvolvimento:
-
-- usuário: `demo`
-- senha: `demo123`
-
-Use essas credenciais apenas localmente/demonstração.
+As credenciais locais do seed são controladas por `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD` e `DEMO_ADMIN_EMAIL`. Use o seed apenas para desenvolvimento/demonstração e não publique credenciais de administrador em produção.
 
 ## Docker
 
@@ -57,9 +52,11 @@ docker compose up --build
 python -m pytest -q
 ```
 
+A CI executa compilação do pacote e testes em cada push/PR.
+
 ## Persistência
 
-A aplicação lê `DATABASE_URL`. Em desenvolvimento, quando ela não é definida, usa SQLite local. Para ambiente público/produção, configure uma URL PostgreSQL persistente.
+A aplicação lê `DATABASE_URL`. Em desenvolvimento, quando ela não é definida, usa SQLite local. Em ambiente público/produção, configure PostgreSQL persistente. O deployment de portfólio é preparado para usar PostgreSQL externo sem gravar a string de conexão no repositório.
 
 ## Segurança
 
@@ -91,6 +88,10 @@ static/
 tests/
 docs/
 ```
+
+## Deploy
+
+O repositório inclui `vercel.json`, além de `Dockerfile` e `docker-compose.yml`. Uma URL só deve ser apresentada aqui como backend público após healthcheck externo bem-sucedido.
 
 ## Roadmap
 
