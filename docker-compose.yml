@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: chs_recruta
+      POSTGRES_USER: chs
+      POSTGRES_PASSWORD: chs_local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chs -d chs_recruta"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql+psycopg://chs:chs_local@db:5432/chs_recruta
+    ports: ["8000:8000"]
+    depends_on:
+      db:
+        condition: service_healthy
