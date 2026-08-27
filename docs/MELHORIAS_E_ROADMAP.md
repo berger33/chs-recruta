@@ -3,7 +3,7 @@
 - **Status:** documento de arquitetura e produto para implementação incremental
 - **Data da análise:** 27 de agosto de 2026
 - **Baseline analisada:** `main@ec67e73`
-**Escopo:** transformar o MVP atual em uma plataforma SaaS multiempresa para recrutadores, RH, Departamento Pessoal, gestores, colaboradores e administradores da plataforma.
+- **Escopo:** transformar o MVP atual em uma plataforma SaaS multiempresa para recrutadores, RH, Departamento Pessoal, gestores, colaboradores e administradores da plataforma.
 
 > Este documento substitui o roadmap resumido anterior. Ele descreve decisões, dependências, riscos e critérios de saída. Não significa que os módulos listados já existam. Requisitos trabalhistas, fiscais, contábeis e de proteção de dados devem passar por validação jurídica e contábil antes de cada liberação em produção.
 
