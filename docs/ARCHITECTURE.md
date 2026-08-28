@@ -22,11 +22,13 @@ flowchart TB
 |---|---|---|
 | Identidade | login, sessão, empresa ativa e papéis | User, Membership, SessionToken |
 | Plataforma | tenant, tema, assinatura e módulos | Tenant, Subscription |
-| ATS | banco de talentos, vaga e processo | Candidate, Vacancy, Application |
-| Pessoas | estrutura e cadastro mestre | Department, Employee |
+| ATS | requisição, banco de talentos, seleção e oferta | JobRequisition, Candidate, Vacancy, Application, Interview, Scorecard, Offer |
+| Pessoas | estrutura, cadastro, contratos e movimentações | Department, Employee, EmploymentContract, EmployeeMovement |
 | Jornada | onboarding, benefícios, ponto e holerites | OnboardingTask, BenefitPlan, TimeEntry, PayrollDocument |
+| Desempenho | ciclos, metas e avaliações | PerformanceCycle, PerformanceGoal, PerformanceReview |
 | Conhecimento | fontes com ACL e respostas fundamentadas | KnowledgeDocument |
-| Operações | KPIs, exportações e evidências | AuditLog, FinancialReference |
+| Integrações | eventos versionados e idempotentes | ESocialEvent |
+| Operações | KPIs, uso, faturas e evidências | UsageRecord, SaaSInvoice, AuditLog, FinancialReference |
 
 ## Isolamento multiempresa
 
@@ -92,6 +94,8 @@ A evolução para pgvector/LLM mantém os mesmos filtros, adiciona defesa contra
 ## Arquivos e integrações
 
 Holerites binários devem residir em object storage privado com criptografia, antivírus, checksum e URL assinada curta. eSocial, folha, REP e benefícios entram por adapters versionados, jobs idempotentes, fila/dead-letter e secrets manager. Um modelo ou tela não significa homologação regulatória.
+
+O núcleo atual já mantém eventos eSocial idempotentes e uma máquina de estados (`draft`, `validated`, `queued`, `sent`, `accepted`, `rejected`). A interface humana prepara e enfileira; o adapter deve registrar envio/aceite e um aceite exige recibo. Comunicação assinada, validação XSD e retentativas distribuídas pertencem ao adapter externo. Cobrança segue a mesma fronteira: uso e faturas internas são o ledger da aplicação; checkout, cartão, Pix, nota fiscal, webhooks e dunning ficam em gateway especializado.
 
 ## Quando separar serviços
 

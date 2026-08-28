@@ -86,6 +86,24 @@ O sistema normaliza profissões comuns, verifica possível duplicidade por nome 
 
 Candidaturas são independentes: a mesma pessoa pode participar de várias vagas sem perder histórico.
 
+### Requisições e aprovação
+
+1. Abra **ATS avançado** e clique em **+ Requisição**.
+2. Informe título, departamento, quantidade, justificativa e responsável pela aprovação.
+3. Salve como rascunho ou envie para aprovação.
+4. O aprovador autorizado escolhe **Aprovar** ou **Rejeitar**.
+5. Consulte a situação antes de iniciar a seleção.
+
+### Entrevistas, scorecards e ofertas
+
+1. Em **ATS avançado**, agende a entrevista vinculada à candidatura.
+2. Informe entrevistador, tipo, data/hora e local ou link.
+3. Depois da conversa, registre o scorecard com critérios objetivos, nota e recomendação.
+4. Para a pessoa selecionada, crie uma oferta com cargo, remuneração, data prevista e validade.
+5. Atualize o status da oferta. Ao registrar uma oferta aceita, a candidatura avança para **Contratado** e o histórico preserva a transição.
+
+Não registre atributos protegidos ou comentários discriminatórios. Uma nota auxilia a decisão, mas não autoriza decisão automática.
+
 ### Boas práticas
 
 Colete somente dados necessários, não infira atributos sensíveis, use critérios relacionados ao trabalho, trate duplicidades e mantenha a decisão humana.
@@ -109,6 +127,16 @@ Colete somente dados necessários, não infira atributos sensíveis, use critér
 5. Salve.
 
 A matrícula é única dentro da empresa. O vínculo ao User determina “meus dados”, próprio ponto e próprios holerites.
+
+### Contratos e movimentações
+
+1. Abra **Contratos** e clique em **+ Contrato**.
+2. Selecione colaborador, tipo, datas, jornada e remuneração aplicável.
+3. Use **+ Movimentação** para promoção, transferência, reajuste, afastamento ou desligamento.
+4. Informe vigência e motivo objetivo; não substitua o histórico anterior.
+5. Confira a trilha de auditoria após alterações relevantes.
+
+O cadastro mestre descreve o estado atual; contratos e movimentações preservam a história. Valores sensíveis devem ser acessíveis apenas aos papéis necessários.
 
 ## Onboarding
 
@@ -143,6 +171,38 @@ Cada marcação recebe hash de integridade. Este recurso **não é REP-P homolog
 5. Salve.
 
 O colaborador vê apenas os próprios registros. O marco atual gerencia metadados; produção precisa de object storage privado, antivírus e URLs assinadas.
+
+## Desempenho
+
+1. O RH abre **Desempenho** e cria um ciclo com início, fim e período de avaliação.
+2. Gestor e colaborador registram metas permitidas, com descrição, peso e prazo.
+3. Durante a avaliação, registre evidências profissionais e notas conforme a política da empresa.
+4. O colaborador acessa os próprios itens; o gestor acessa a equipe direta; RH e perfis autorizados administram o ciclo.
+5. Antes de concluir, verifique coerência, vieses e direito de revisão.
+
+Calibração, feedback contínuo, 9-box e PDI ainda são evoluções planejadas. O sistema não deve decidir sozinho promoção, remuneração ou desligamento.
+
+## eSocial
+
+1. Abra **eSocial** e clique em **+ Evento**.
+2. Informe tipo, competência, chave idempotente e payload previamente validado.
+3. Enfileire o evento e acompanhe processamento, aceite, rejeição ou cancelamento.
+4. Em rejeição, corrija a origem e gere uma nova tentativa controlada; não duplique a mesma chave.
+5. Confira protocolo e auditoria quando o adapter oficial estiver configurado.
+
+Esta tela implementa preparação e acompanhamento. Sem certificado, XSD, assinatura, transmissão e recibo por conector homologado, ela **não comprova envio oficial**.
+
+## Cobrança SaaS
+
+Área exclusiva da plataforma:
+
+1. Abra **Cobrança SaaS** para consultar medição por competência.
+2. Registre ou reconcilie quantidades por métrica, como usuários ativos ou armazenamento.
+3. Gere a fatura interna com competência, vencimento, moeda e valor.
+4. Atualize seu estado somente após retorno confiável do gateway.
+5. Compare o resumo de uso, faturas abertas e vencidas.
+
+O ledger interno não processa cartão, Pix, nota fiscal nem liquidação. Essas operações dependem de gateway e webhooks assinados.
 
 ## Assistente corporativo
 
@@ -207,6 +267,8 @@ Em **Configurações**, escolha rosa, ciano, roxo, verde-musgo ou laranja. Claro
 | Perfil não vinculado | User sem Employee | RH cria ou vincula matrícula |
 | Documento já existe | competência/tipo repetidos | revise o lote |
 | Assistente sem fonte | nenhuma fonte autorizada | consulte o RH |
+| Evento eSocial rejeitado | validação ou retorno do adapter | confira erro, origem e chave idempotente |
+| Fatura interna em aberto | sem confirmação do gateway | reconcilie pelo identificador externo |
 | Sessão expirada | tempo atingido/revogação | entre novamente |
 
 ## Segurança e privacidade
