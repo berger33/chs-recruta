@@ -8,6 +8,9 @@ A fonte permanente do produto é [docs/PRODUCT_PURPOSE.md](docs/PRODUCT_PURPOSE.
 
 - tenants, usuários globais e memberships por empresa;
 - sete papéis e permissões por ação;
+- senhas Argon2id, MFA TOTP, recuperação, bloqueio e rate limit persistente;
+- sessões por dispositivo em cookie HttpOnly/CSRF, revogação e expiração por inatividade;
+- acesso privilegiado temporário com MFA, dupla aprovação, motivo e auditoria;
 - filtros por tenant e PostgreSQL Row-Level Security;
 - Alembic, auditoria estruturada, request ID e soft delete;
 - frontend operacional responsivo, busca, cinco paletas e claro/escuro;
@@ -48,11 +51,13 @@ Acesse:
 - OpenAPI: http://127.0.0.1:8000/docs
 - saúde: http://127.0.0.1:8000/health
 
-Seed local: `demo` / `demo12345`, empresa `empresa-demo`. Nunca use essas credenciais em produção.
+Para criar o seed local, defina `DEMO_ADMIN_PASSWORD` com uma senha forte escolhida por você. O usuário padrão é `demo` e a empresa é `empresa-demo`; nenhuma senha é publicada no repositório.
 
 ## Docker
 
 ```bash
+cp .env.example .env
+# Preencha POSTGRES_PASSWORD, SECURITY_SECRET_KEY e DEMO_ADMIN_PASSWORD no .env.
 docker compose up --build
 ```
 
@@ -65,9 +70,15 @@ O Compose sobe PostgreSQL, aplica migrations, cria o tenant demonstrativo e inic
 | `APP_ENV` | development | use production no ambiente público |
 | `DATABASE_URL` | SQLite local | use PostgreSQL persistente em produção |
 | `SESSION_TTL_HOURS` | 12 | expiração da sessão |
+| `SESSION_IDLE_MINUTES` | 60 | expiração por inatividade |
+| `MAX_ACTIVE_SESSIONS` | 5 | limite por usuário |
+| `SECURITY_SECRET_KEY` | somente desenvolvimento | chave de criptografia/HMAC; obrigatória via secrets manager em produção |
+| `PASSWORD_RESET_TTL_MINUTES` | 20 | validade do link de recuperação |
+| `PASSWORD_RESET_URL` | localhost | URL pública HTTPS com `{token}` no fragmento |
+| `SMTP_*` | vazio | entrega dos links; `SMTP_HOST`/`SMTP_FROM` são obrigatórios em produção |
 | `ALLOWED_ORIGINS` | localhost | origens CORS |
 | `AUTO_CREATE_SCHEMA` | SQLite dev | em produção use false + Alembic |
-| `TUTORIAL_VERSION` | 4 | reapresenta conteúdo novo |
+| `TUTORIAL_VERSION` | 5 | reapresenta conteúdo novo |
 | `SEED_DEMO` | false | somente ambiente descartável |
 
 ## Testes
@@ -80,6 +91,7 @@ node --check static/advanced.js
 node --check static/portal.js
 node --check static/workforce.js
 node --check static/time_payroll.js
+node --check static/security.js
 ```
 
 ## Estrutura
@@ -87,7 +99,7 @@ node --check static/time_payroll.js
 ```text
 app/
 ├── config.py, database.py, models.py, schemas.py
-├── advanced_models.py, advanced_schemas.py
+├── advanced_models.py, advanced_schemas.py, identity_models.py
 ├── permissions.py, security.py, services.py
 ├── main.py, seed.py
 └── routers/saas.py
@@ -107,4 +119,4 @@ docs/
 
 ## Produção
 
-Antes de dados reais: TLS, secrets manager, backups restaurados, PostgreSQL gerenciado, MFA/SSO conforme risco, object storage privado, rate limit, observabilidade, scans, pentest e revisão LGPD/jurídico-contábil.
+Antes de dados reais: TLS, secrets manager, SMTP transacional, backups restaurados, PostgreSQL gerenciado, object storage privado, rate limit distribuído, observabilidade, scans, pentest e revisão LGPD/jurídico-contábil. SSO/SCIM e WebAuthn/passkeys seguem como gate enterprise.

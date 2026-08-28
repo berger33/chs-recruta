@@ -1,6 +1,6 @@
 from __future__ import annotations
 import os
-os.environ["DATABASE_URL"]="sqlite://"; os.environ["AUTO_CREATE_SCHEMA"]="true"; os.environ["APP_ENV"]="test"
+os.environ["DATABASE_URL"]="sqlite://"; os.environ["AUTO_CREATE_SCHEMA"]="true"; os.environ["APP_ENV"]="test"; os.environ["SECURITY_SECRET_KEY"]="test-security-secret-key-with-32-characters"
 import pytest
 from fastapi.testclient import TestClient
 from app.database import Base,SessionLocal,engine
@@ -14,7 +14,7 @@ def clean_database():
 def client():
     with TestClient(app) as value: yield value
 @pytest.fixture(scope="session")
-def password_hash(): return hash_password("senha12345")
+def password_hash(): return hash_password("Senha-Segura-2026!")
 @pytest.fixture
 def identity_factory(password_hash):
     counter=0
@@ -28,7 +28,7 @@ def identity_factory(password_hash):
 @pytest.fixture
 def login(client):
     def authenticate(identity):
-        response=client.post("/api/auth/login",json={"identifier":identity["username"],"password":"senha12345","tenant_slug":identity["slug"]})
+        response=client.post("/api/auth/login",json={"identifier":identity["username"],"password":"Senha-Segura-2026!","tenant_slug":identity["slug"]})
         assert response.status_code==200,response.text
         return {"Authorization":"Bearer "+response.json()["token"]}
     return authenticate

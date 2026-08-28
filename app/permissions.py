@@ -15,6 +15,7 @@ class Permission(str, Enum):
     portal_own="portal.own"; portal_team="portal.team"; portal_manage="portal.manage"
     employee_files_manage="employee_files.manage"
     time_manage="time.manage"; time_adjust_approve="time.adjust.approve"; time_close="time.close"
+    security_manage="security.manage"
 
 ALL_PERMISSIONS=frozenset(Permission)
 ROLE_PERMISSIONS={

@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: chs_recruta
       POSTGRES_USER: chs
-      POSTGRES_PASSWORD: chs_local
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
     healthcheck:
       test: ["CMD-SHELL","pg_isready -U chs -d chs_recruta"]
       interval: 5s
@@ -13,8 +13,10 @@ services:
   api:
     build: .
     environment:
-      DATABASE_URL: postgresql+psycopg://chs:chs_local@db:5432/chs_recruta
+      DATABASE_URL: postgresql+psycopg://chs:${POSTGRES_PASSWORD}@db:5432/chs_recruta
       APP_ENV: development
+      SECURITY_SECRET_KEY: ${SECURITY_SECRET_KEY:?Defina SECURITY_SECRET_KEY no arquivo .env}
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:?Defina DEMO_ADMIN_PASSWORD no arquivo .env}
       SEED_DEMO: "true"
     ports: ["8000:8000"]
     depends_on:
