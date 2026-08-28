@@ -1,6 +1,6 @@
 # Manual de uso — CHS RH
 
-**Versão:** 1.2
+**Versão:** 1.3
 **Público:** administradores, RH, recrutadores, gestores, colaboradores e auditores  
 **Data:** 28 de agosto de 2026
 
@@ -180,23 +180,60 @@ O backend recalcula vínculo, departamento e carência antes de aceitar o pedido
 
 ## Ponto
 
-1. Abra **Ponto**.
-2. Clique em **Registrar marcação**.
-3. Confirme o colaborador; o usuário comum registra apenas para si.
-4. Escolha entrada, início/fim de intervalo ou saída.
-5. Confira data/hora, adicione observação se necessária e salve.
+### Configurar escalas
 
-Cada marcação recebe hash de integridade. Este recurso **não é REP-P homologado** e não deve ser usado como único sistema oficial sem integrações, espelho, fechamento e validação aplicável.
+1. O RH abre **Ponto** e clica em **Nova escala**.
+2. Informa nome, carga semanal, intervalo e tolerância operacional.
+3. Clica em **Atribuir escala**, seleciona colaborador e vigência.
+4. Confere as datas: o sistema bloqueia escalas sobrepostas para a mesma pessoa.
+
+### Registrar a jornada
+
+1. O colaborador abre **Ponto** e clica em **Registrar marcação**.
+2. Escolhe entrada, início/fim de intervalo ou saída.
+3. Confere data e hora, adiciona observação quando necessário e salva.
+4. Gestores consultam somente a equipe direta; o RH autorizado consulta a empresa.
+
+Cada marcação bruta recebe hash de integridade e não pode ser reescrita pelo fluxo de correção. Marcações administrativas só podem entrar por usuário autorizado e fonte identificada como provedor ou importação.
+
+### Corrigir uma marcação
+
+1. Clique em **Solicitar ajuste**.
+2. Use **add** para uma marcação ausente, **replace** para substituir o efeito de uma marcação ou **void** para anulá-la.
+3. Informe motivo verificável e, quando aplicável, a nova data, hora e tipo.
+4. O gestor da equipe ou RH aprova ou rejeita. O gestor não aprova o próprio ajuste.
+5. Enquanto pendente, o solicitante pode cancelar. A marcação bruta continua preservada em todos os casos.
+
+### Calcular e fechar o espelho
+
+1. O RH clica em **Calcular espelho**, escolhe colaborador e competência `AAAA-MM`.
+2. Confere minutos apurados e anomalias de pares incompletos ou duplicados.
+3. O colaborador envia o espelho aberto.
+4. O gestor ou RH aprova; o RH autorizado fecha a competência.
+5. O fechamento grava hash. Um recálculo posterior não altera o fechado: cria nova versão ligada à anterior.
+
+Este módulo mantém trilha técnica e segregação, mas **não é declarado como REP-P homologado**. Uso oficial exige aderência integral à Portaria MTP nº 671, comprovantes/arquivos e assinatura aplicáveis, além de homologação jurídica e trabalhista da implantação. Consulte as [orientações oficiais sobre REP](https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/fiscalizacao-do-trabalho/rep) e a [Portaria nº 671 compilada](https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/legislacao/portarias-1/portarias-vigentes-3/PDFPortarian671de8denovembrode2021compilada03.06.2024.pdf).
 
 ## Holerites
 
-1. Abra **Holerites**.
-2. Se autorizado, clique em **Publicar documento**.
-3. Escolha colaborador e competência `AAAA-MM`.
-4. Informe tipo, nome, chave de armazenamento e checksum.
-5. Salve.
+### Importar e publicar uma competência
 
-O colaborador vê apenas os próprios registros. O marco atual gerencia metadados; produção precisa de object storage privado, antivírus e URLs assinadas.
+1. O RH autorizado abre **Holerites** e clica em **Importar lote**.
+2. Informa competência `AAAA-MM`, sistema de origem e uma chave idempotente única.
+3. Cola uma linha por colaborador no formato `matrícula|bruto|descontos|líquido|arquivo|storage_key|sha256`.
+4. Importa o lote. O sistema valida matrícula da empresa, checksum e a igualdade `bruto - descontos = líquido`.
+5. Move o lote de **uploaded** para **validated** somente após a conferência da folha de origem.
+6. Move de **validated** para **published** para liberar os demonstrativos aos colaboradores.
+
+Repetir a mesma chave idempotente não duplica a competência. Lotes publicados não voltam de estado; uma correção deve usar novo lote e nova chave conforme a política da empresa.
+
+### Consultar como colaborador
+
+1. Abra **Holerites**.
+2. Consulte apenas os próprios demonstrativos já publicados.
+3. Confira competência, valores bruto, descontos, líquido, arquivo e checksum.
+
+O sistema importa e distribui resultados; **não calcula folha** e não substitui sistema contábil/fiscal. O marco atual gerencia metadados: download seguro em produção exige object storage privado, antivírus, criptografia e URLs assinadas de curta duração. Integrações bancárias, contabilização, encargos e eventos de folha do eSocial continuam dependentes de conectores e validação profissional.
 
 ## Portal do colaborador
 

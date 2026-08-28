@@ -40,6 +40,13 @@ def own_employee(db,c):
     obj=db.scalar(select(Employee).where(Employee.tenant_id==c.tenant_id,Employee.user_id==c.user.id))
     if not obj: raise HTTPException(403,"Usuário não está vinculado a um colaborador")
     return obj
+def time_employee_scope(db,c):
+    if Permission.time_manage in c.permissions: return None
+    employee=own_employee(db,c); allowed={employee.id}
+    if Permission.time_team in c.permissions:
+        allowed.update(db.scalars(select(Employee.id).where(Employee.tenant_id==c.tenant_id,Employee.manager_id==employee.id)).all())
+    elif Permission.time_own not in c.permissions: raise HTTPException(403,"Permissão insuficiente")
+    return allowed
 
 @router.post("/api/auth/login",response_model=LoginResponse,tags=["auth"])
 def login(payload:LoginRequest,db:Annotated[Session,Depends(get_db)]):
@@ -228,19 +235,18 @@ def benefit_create(payload:BenefitPlanCreate,request:Request,c:Annotated[AuthCon
 
 @router.get("/api/time-entries",response_model=list[TimeEntryRead],tags=["workforce"])
 def time_entries(c:Annotated[AuthContext,Depends(current_context)],db:Annotated[Session,Depends(get_db)],employee_id:int|None=None,limit:int=Query(100,ge=1,le=500)):
-    if Permission.time_team in c.permissions: target=employee_id
-    elif Permission.time_own in c.permissions:
-        target=own_employee(db,c).id
-        if employee_id is not None and employee_id!=target: raise HTTPException(403,"Acesso limitado às próprias marcações")
-    else: raise HTTPException(403,"Permissão insuficiente")
+    allowed=time_employee_scope(db,c); target=employee_id
+    if target is not None and allowed is not None and target not in allowed: raise HTTPException(404,"Colaborador não encontrado")
     stmt=select(TimeEntry).where(TimeEntry.tenant_id==c.tenant_id)
     if target is not None: stmt=stmt.where(TimeEntry.employee_id==target)
+    elif allowed is not None: stmt=stmt.where(TimeEntry.employee_id.in_(allowed))
     return db.scalars(stmt.order_by(TimeEntry.recorded_at.desc()).limit(limit)).all()
 @router.post("/api/time-entries",response_model=TimeEntryRead,status_code=201,tags=["workforce"])
 def time_create(payload:TimeEntryCreate,request:Request,c:Annotated[AuthContext,Depends(current_context)],db:Annotated[Session,Depends(get_db)]):
     employee=scoped(db,Employee,c.tenant_id,payload.employee_id,"Colaborador não encontrado")
-    if Permission.time_team not in c.permissions and employee.user_id!=c.user.id: raise HTTPException(403,"Acesso limitado às próprias marcações")
-    if Permission.time_own not in c.permissions and Permission.time_team not in c.permissions: raise HTTPException(403,"Permissão insuficiente")
+    is_own=employee.user_id==c.user.id and Permission.time_own in c.permissions
+    is_provider_import=Permission.time_manage in c.permissions and payload.source in {"provider","import"}
+    if not is_own and not is_provider_import: raise HTTPException(403,"Marcações brutas só podem vir do próprio colaborador ou de integração autorizada")
     obj=TimeEntry(tenant_id=c.tenant_id,created_by_id=c.user.id,integrity_hash=time_entry_hash(c.tenant_id,employee.id,payload.kind,payload.recorded_at),**payload.model_dump()); db.add(obj); db.flush()
     audit(db,context=c,request=request,action="create",entity="time_entry",entity_id=str(obj.id),details=f"{employee.employee_number}:{obj.kind.value}",after=model_snapshot(obj)); db.commit(); db.refresh(obj); return obj
 

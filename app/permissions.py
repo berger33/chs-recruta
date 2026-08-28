@@ -14,13 +14,14 @@ class Permission(str, Enum):
     esocial_manage="esocial.manage"
     portal_own="portal.own"; portal_team="portal.team"; portal_manage="portal.manage"
     employee_files_manage="employee_files.manage"
+    time_manage="time.manage"; time_adjust_approve="time.adjust.approve"; time_close="time.close"
 
 ALL_PERMISSIONS=frozenset(Permission)
 ROLE_PERMISSIONS={
     "tenant_owner":ALL_PERMISSIONS, "admin":ALL_PERMISSIONS,
-    "hr":frozenset({Permission.users_read,Permission.candidates_read,Permission.candidates_write,Permission.candidates_delete,Permission.vacancies_read,Permission.vacancies_write,Permission.applications_manage,Permission.employees_read,Permission.employees_write,Permission.onboarding_manage,Permission.benefits_manage,Permission.time_own,Permission.time_team,Permission.payroll_own,Permission.payroll_manage,Permission.knowledge_read,Permission.knowledge_manage,Permission.audit_read,Permission.reports_read,Permission.contracts_read,Permission.contracts_manage,Permission.performance_read,Permission.performance_manage,Permission.esocial_manage,Permission.portal_manage,Permission.employee_files_manage}),
+    "hr":frozenset({Permission.users_read,Permission.candidates_read,Permission.candidates_write,Permission.candidates_delete,Permission.vacancies_read,Permission.vacancies_write,Permission.applications_manage,Permission.employees_read,Permission.employees_write,Permission.onboarding_manage,Permission.benefits_manage,Permission.time_own,Permission.time_team,Permission.time_manage,Permission.time_adjust_approve,Permission.time_close,Permission.payroll_own,Permission.payroll_manage,Permission.knowledge_read,Permission.knowledge_manage,Permission.audit_read,Permission.reports_read,Permission.contracts_read,Permission.contracts_manage,Permission.performance_read,Permission.performance_manage,Permission.esocial_manage,Permission.portal_manage,Permission.employee_files_manage}),
     "recruiter":frozenset({Permission.candidates_read,Permission.candidates_write,Permission.vacancies_read,Permission.vacancies_write,Permission.applications_manage,Permission.knowledge_read,Permission.reports_read,Permission.portal_own}),
-    "manager":frozenset({Permission.candidates_read,Permission.vacancies_read,Permission.employees_read,Permission.time_own,Permission.time_team,Permission.payroll_own,Permission.knowledge_read,Permission.reports_read,Permission.performance_read,Permission.portal_own,Permission.portal_team}),
+    "manager":frozenset({Permission.candidates_read,Permission.vacancies_read,Permission.employees_read,Permission.time_own,Permission.time_team,Permission.time_adjust_approve,Permission.payroll_own,Permission.knowledge_read,Permission.reports_read,Permission.performance_read,Permission.portal_own,Permission.portal_team}),
     "employee":frozenset({Permission.time_own,Permission.payroll_own,Permission.knowledge_read,Permission.performance_read,Permission.portal_own}),
     "auditor":frozenset({Permission.users_read,Permission.candidates_read,Permission.vacancies_read,Permission.employees_read,Permission.audit_read,Permission.reports_read,Permission.contracts_read,Permission.performance_read}),
 }

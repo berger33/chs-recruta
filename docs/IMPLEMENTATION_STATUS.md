@@ -22,8 +22,8 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 | Portal | autoescopo, solicitações, férias/ausências, documentos, ponto, holerite e conhecimento | saldo de férias, assinatura e download seguro |
 | Onboarding | templates, tarefas relativas, responsáveis, aplicação idempotente e conclusão | dependências, evidências e assinatura |
 | Benefícios | catálogo, elegibilidade por vínculo/departamento/carência e adesões | dependentes, eventos de vida e integrações |
-| Ponto | registro inicial, **não REP-P** | provider homologado, ajustes, espelho e fechamento |
-| Holerites | hub de metadados | object storage, lotes e reconciliação |
+| Ponto | marcação imutável, ajustes aprováveis, escalas, espelhos versionados e fechamento, **não REP-P** | provider/assinatura/formato oficial e homologação |
+| Holerites | lotes idempotentes, reconciliação, publicação e autoescopo | object storage, antivírus, download assinado e adapter de folha |
 | eSocial | eventos idempotentes, estados, auditoria e UI operacional | XSD, certificado, worker, recibos e homologação |
 | RAG | ACL, citações e abstenção | ingestão, embeddings, avaliação e LLM controlado |
 | Desempenho | ciclos, metas, avaliações e escopo próprio/equipe | calibração, feedback contínuo, 9-box e PDI |

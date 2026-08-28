@@ -24,7 +24,7 @@ flowchart TB
 | Plataforma | tenant, tema, assinatura e módulos | Tenant, Subscription |
 | ATS | requisição, banco de talentos, seleção e oferta | JobRequisition, Candidate, Vacancy, Application, Interview, Scorecard, Offer |
 | Pessoas | estrutura, cadastro, contratos e movimentações | Department, Employee, EmploymentContract, EmployeeMovement |
-| Jornada | onboarding, benefícios, ponto e holerites | OnboardingTemplate, OnboardingApplication, OnboardingTask, BenefitPlan, BenefitEligibilityRule, BenefitEnrollment, TimeEntry, PayrollDocument |
+| Jornada | onboarding, benefícios, ponto e holerites | OnboardingTemplate, BenefitEnrollment, TimeEntry, TimeAdjustment, Timesheet, PayrollBatch, PayrollStatement |
 | Portal | atendimento, ausências e arquivos do colaborador | EmployeeRequest, LeaveRequest, EmployeeFile |
 | Desempenho | ciclos, metas e avaliações | PerformanceCycle, PerformanceGoal, PerformanceReview |
 | Conhecimento | fontes com ACL e respostas fundamentadas | KnowledgeDocument |
@@ -99,6 +99,14 @@ A evolução para pgvector/LLM mantém os mesmos filtros, adiciona defesa contra
 ## Arquivos e integrações
 
 Holerites binários devem residir em object storage privado com criptografia, antivírus, checksum e URL assinada curta. eSocial, folha, REP e benefícios entram por adapters versionados, jobs idempotentes, fila/dead-letter e secrets manager. Um modelo ou tela não significa homologação regulatória.
+
+### Tratamento de jornada e folha
+
+Marcações brutas não são editadas nem excluídas. Uma correção nasce como solicitação; quando aprovada, gera um evento derivado (`add`, `replace` ou `void`) com hash, preservando a marcação original. O espelho usa somente a visão efetiva, registra anomalias e, depois de fechado, permanece imutável. Novo cálculo gera uma versão que referencia a anterior.
+
+Lotes de folha são importações, não cálculos. A chave idempotente impede repetição, as matrículas devem existir no tenant e cada linha precisa reconciliar bruto menos descontos com líquido. Somente lotes publicados aparecem ao colaborador. O binário continua fora do banco transacional.
+
+O desenho segue as preocupações de integridade e comprovantes descritas na [Portaria MTP nº 671/2021 compilada](https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/legislacao/portarias-1/portarias-vigentes-3/PDFPortarian671de8denovembrode2021compilada03.06.2024.pdf) e nas [orientações oficiais sobre REP](https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/inspecao-do-trabalho/fiscalizacao-do-trabalho/rep). Ainda assim, o CHS RH não se declara REP-P: faltam assinatura/certificado, formatos oficiais, comprovantes e registro/homologação aplicáveis.
 
 O núcleo atual já mantém eventos eSocial idempotentes e uma máquina de estados (`draft`, `validated`, `queued`, `sent`, `accepted`, `rejected`). A interface humana prepara e enfileira; o adapter deve registrar envio/aceite e um aceite exige recibo. Comunicação assinada, validação XSD e retentativas distribuídas pertencem ao adapter externo. Cobrança segue a mesma fronteira: uso e faturas internas são o ledger da aplicação; checkout, cartão, Pix, nota fiscal, webhooks e dunning ficam em gateway especializado.
 

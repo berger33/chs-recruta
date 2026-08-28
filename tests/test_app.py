@@ -35,10 +35,15 @@ def test_role_permissions_deny_employee_ats(client,identity_factory,login):
 
 def test_tutorial_preference_persists(client,identity_factory,login):
     owner=identity_factory(); headers=login(owner)
-    assert client.get("/api/auth/me",headers=headers).json()["tutorial"]["should_show"] is True
-    updated=client.put("/api/tenants/tutorial",json={"completed":False,"dismissed":True,"version":1},headers=headers)
-    assert updated.status_code==200; assert updated.json()["dismissed"] is True; assert updated.json()["should_show"] is False
+    state=client.get("/api/auth/me",headers=headers).json()["tutorial"]
+    assert state["should_show"] is True
+    updated=client.put("/api/tenants/tutorial",json={"completed":True,"dismissed":False,"version":state["current_version"]},headers=headers)
+    assert updated.status_code==200; assert updated.json()["dismissed"] is False; assert updated.json()["should_show"] is False
     assert client.get("/api/auth/me",headers=headers).json()["tutorial"]["should_show"] is False
+    other=identity_factory(slug="tutorial-dismissed"); other_headers=login(other)
+    updated=client.put("/api/tenants/tutorial",json={"completed":False,"dismissed":True,"version":state["current_version"]},headers=other_headers)
+    assert updated.status_code==200; assert updated.json()["dismissed"] is True; assert updated.json()["should_show"] is False
+    assert client.get("/api/auth/me",headers=other_headers).json()["tutorial"]["should_show"] is False
 
 def test_employee_sees_only_own_payroll_and_time(client,identity_factory,login):
     identity=identity_factory(role=Role.employee)
