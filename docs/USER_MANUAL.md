@@ -1,6 +1,6 @@
 # Manual de uso — CHS RH
 
-**Versão:** 1.1
+**Versão:** 1.2
 **Público:** administradores, RH, recrutadores, gestores, colaboradores e auditores  
 **Data:** 28 de agosto de 2026
 
@@ -140,17 +140,43 @@ O cadastro mestre descreve o estado atual; contratos e movimentações preservam
 
 ## Onboarding
 
-1. Abra **Onboarding**.
-2. Clique em **+ Tarefa**.
-3. Escolha colaborador, entrega e prazo.
-4. Explique o resultado esperado.
-5. Após evidência, clique em **Concluir**.
+### Criar um template
+
+1. Abra **Onboarding** e clique em **Novo template**.
+2. Dê um nome ao checklist e descreva quando ele deve ser usado.
+3. Cadastre uma tarefa por linha no formato mostrado na tela: dias relativos, responsável, título e descrição.
+4. Use responsáveis `employee`, `manager`, `hr`, `it` ou `facilities`.
+5. Revise a ordem e salve.
+
+### Aplicar e acompanhar
+
+1. Clique em **Aplicar template**.
+2. Escolha template, colaborador e data-base; sem data-base, o sistema usa admissão e depois a data atual.
+3. Confirme. Cada template pode ser aplicado uma única vez ao mesmo colaborador.
+4. Acompanhe tarefas pendentes, em andamento e concluídas.
+5. Para uma exceção, use **Tarefa avulsa**.
+6. Após a entrega e evidência aplicável, clique em **Concluir**.
 
 Crie tarefas separadas para RH, gestor, TI e Facilities.
 
 ## Benefícios
 
-Abra **Benefícios**, clique em **+ Benefício**, informe nome, categoria, fornecedor e custo. O marco atual é um catálogo; elegibilidade, adesão e dependentes serão evoluídos.
+### Administrar
+
+1. Abra **Benefícios** e clique em **+ Benefício**.
+2. Informe nome, categoria, fornecedor e custo do colaborador.
+3. Em **Regra**, defina vínculo exigido e carência; regras de departamento também estão disponíveis na API.
+4. Confira solicitações e escolha **Ativar** ou **Rejeitar** conforme política/evidência.
+5. Ao ativar, valide vigência e contribuições do colaborador/empresa.
+
+### Solicitar adesão
+
+1. O colaborador abre **Benefícios** e consulta o motivo de elegibilidade.
+2. Em um plano elegível, clica em **Solicitar**.
+3. Acompanha o pedido até ativação ou rejeição.
+4. Enquanto pendente, pode cancelar a própria solicitação.
+
+O backend recalcula vínculo, departamento e carência antes de aceitar o pedido. Dependentes, eventos de vida, descontos em folha e comunicação com operadoras ainda exigem evolução e integrações.
 
 ## Ponto
 

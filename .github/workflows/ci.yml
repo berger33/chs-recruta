@@ -19,5 +19,6 @@ jobs:
       - run: node --check static/app.js
       - run: node --check static/advanced.js
       - run: node --check static/portal.js
+      - run: node --check static/workforce.js
       - run: DATABASE_URL=sqlite:////tmp/chs-migration.db alembic upgrade head
       - run: python -m pytest -q

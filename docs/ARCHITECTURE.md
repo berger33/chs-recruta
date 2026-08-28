@@ -24,7 +24,7 @@ flowchart TB
 | Plataforma | tenant, tema, assinatura e módulos | Tenant, Subscription |
 | ATS | requisição, banco de talentos, seleção e oferta | JobRequisition, Candidate, Vacancy, Application, Interview, Scorecard, Offer |
 | Pessoas | estrutura, cadastro, contratos e movimentações | Department, Employee, EmploymentContract, EmployeeMovement |
-| Jornada | onboarding, benefícios, ponto e holerites | OnboardingTask, BenefitPlan, TimeEntry, PayrollDocument |
+| Jornada | onboarding, benefícios, ponto e holerites | OnboardingTemplate, OnboardingApplication, OnboardingTask, BenefitPlan, BenefitEligibilityRule, BenefitEnrollment, TimeEntry, PayrollDocument |
 | Portal | atendimento, ausências e arquivos do colaborador | EmployeeRequest, LeaveRequest, EmployeeFile |
 | Desempenho | ciclos, metas e avaliações | PerformanceCycle, PerformanceGoal, PerformanceReview |
 | Conhecimento | fontes com ACL e respostas fundamentadas | KnowledgeDocument |
@@ -80,6 +80,8 @@ Alembic é a estratégia de evolução do schema fora do SQLite de desenvolvimen
 O shell possui busca, responsividade, estados vazios/erro/loading, dialogs nativos, claro/escuro e cinco paletas. O tutorial usa elementos reais, adapta passos às permissões, persiste versão e “Não exibir novamente” por membership e respeita `prefers-reduced-motion`.
 
 O portal aplica escopo em três níveis no backend: próprio colaborador, equipe direta do gestor e administração de RH. Solicitações e férias têm máquinas de estado e auditoria; ausências ativas não podem se sobrepor. Arquivos mantêm metadados/checksum e separam visibilidade do colaborador de conteúdo exclusivo do RH.
+
+Templates de onboarding geram tarefas transacionalmente a partir de uma data-base, com offsets e responsáveis derivados do vínculo. A combinação template/colaborador é única, evitando aplicação duplicada. Benefícios separam catálogo, regra de elegibilidade e adesão; o backend recalcula a elegibilidade antes de aceitar a solicitação e controla os estados da vigência.
 
 ## Assistente corporativo
 
