@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: chs
       POSTGRES_PASSWORD: chs_local
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U chs -d chs_recruta"]
+      test: ["CMD-SHELL","pg_isready -U chs -d chs_recruta"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -14,6 +14,8 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql+psycopg://chs:chs_local@db:5432/chs_recruta
+      APP_ENV: development
+      SEED_DEMO: "true"
     ports: ["8000:8000"]
     depends_on:
       db:

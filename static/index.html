@@ -1,1 +1,30 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CHS Recruta</title><link rel="stylesheet" href="/static/styles.css"></head><body><main><h1>CHS Recruta</h1><p>Backend Python para recrutamento e seleção.</p><div class="links"><a href="/docs">Abrir documentação da API</a><a href="/health">Healthcheck</a></div><section><h2>Stack</h2><p>FastAPI · SQLAlchemy · PostgreSQL · RBAC · Pytest · Docker</p></section></main></body></html>
+<!doctype html>
+<html lang="pt-BR" data-mode="light" data-color="rose">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="CHS RH — plataforma multiempresa de recrutamento e pessoas."><title>CHS RH</title><link rel="stylesheet" href="/static/styles.css"></head>
+<body>
+<div id="login" class="login">
+  <section class="hero"><div class="brand"><b>CHS</b> RH</div><p class="eyebrow">Pessoas, processos e conhecimento</p><h1>Toda a rotina de RH em um só lugar.</h1><p>Recrutamento, colaboradores, jornada, documentos e atendimento corporativo com segurança multiempresa.</p></section>
+  <section class="login-panel"><form id="login-form" class="card"><p class="eyebrow">Bem-vindo</p><h2>Entrar no CHS RH</h2><label>Usuário ou e-mail<input name="identifier" required minlength="3" autocomplete="username"></label><label>Senha<input name="password" type="password" required minlength="8" autocomplete="current-password"></label><label>Empresa <small>(opcional)</small><input name="tenant_slug" placeholder="empresa-demo"></label><p id="login-error" class="error" hidden></p><button class="primary">Entrar com segurança</button><small>Local: <b>demo</b> / <b>demo12345</b></small></form></section>
+</div>
+<div id="shell" class="shell" hidden>
+  <aside id="sidebar"><header class="brand"><b>CHS</b> RH</header><section class="tenant" data-tour="tenant"><span id="tenant-initial">E</span><div><strong id="tenant-name">Empresa</strong><small id="tenant-role">Papel</small></div></section>
+  <nav id="nav">
+    <button data-view="dashboard" data-permission="reports.read" data-tour="dashboard">⌂ Visão geral</button>
+    <button data-view="candidates" data-permission="candidates.read" data-tour="candidates">◎ Candidatos</button>
+    <button data-view="vacancies" data-permission="vacancies.read">◇ Vagas</button>
+    <button data-view="applications" data-permission="candidates.read" data-tour="applications">⇢ Pipeline ATS</button>
+    <button data-view="employees" data-tour="employees">♙ Colaboradores</button>
+    <button data-view="onboarding" data-permission="onboarding.manage" data-tour="onboarding">✓ Onboarding</button>
+    <button data-view="benefits" data-tour="benefits">♡ Benefícios</button>
+    <button data-view="time" data-any="time.own,time.team" data-tour="time">◷ Ponto</button>
+    <button data-view="payroll" data-any="payroll.own,payroll.manage" data-tour="payroll">▤ Holerites</button>
+    <button data-view="knowledge" data-permission="knowledge.read" data-tour="knowledge">✦ Assistente</button>
+    <button data-view="audit" data-permission="audit.read" data-tour="audit">◉ Auditoria</button>
+    <button data-view="settings" data-permission="tenant.manage" data-tour="settings">⚙ Configurações</button>
+  </nav><footer><button id="tutorial-start">? Refazer tutorial</button><button id="logout">↗ Sair</button></footer></aside>
+  <section class="workspace"><header class="topbar"><button id="menu" class="mobile">☰</button><div class="search" data-tour="search">⌕ <input id="search" placeholder="Buscar candidatos ou colaboradores…"><div id="results" hidden></div></div><button id="mode" data-tour="theme">◐</button><div class="user"><b id="avatar">US</b><span><strong id="user-name">Usuário</strong><small id="user-role">Papel</small></span></div></header><main id="view" tabindex="-1"></main></section>
+</div>
+<dialog id="modal"><form id="modal-form"><header><div><p class="eyebrow" id="modal-eyebrow">Cadastro</p><h2 id="modal-title">Novo registro</h2></div><button type="button" data-close>×</button></header><section id="fields" class="fields"></section><p id="modal-error" class="error" hidden></p><footer><button type="button" data-close>Cancelar</button><button class="primary">Salvar</button></footer></form></dialog>
+<dialog id="tutorial"><div class="progress"><span id="progress"></span></div><p class="eyebrow" id="counter"></p><h2 id="tour-title"></h2><p id="tour-body"></p><label class="check"><input id="dismiss" type="checkbox"> Não exibir novamente após encerrar</label><footer><button id="skip">Pular por agora</button><button id="back">Voltar</button><button class="primary" id="next">Continuar</button></footer></dialog>
+<div id="toasts"></div><script type="module" src="/static/app.js"></script>
+</body></html>

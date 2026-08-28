@@ -1,44 +1,48 @@
-# CHS Recruta
+# CHS RH
 
-Sistema de recrutamento e seleção com backend em **Python + FastAPI**, persistência via **SQLAlchemy/PostgreSQL**, autenticação com **RBAC**, trilha de auditoria, testes automatizados, Docker e CI.
+Plataforma SaaS multiempresa para recrutamento e gestão de pessoas. **CHS Recruta** é o módulo ATS.
 
-> Este repositório é a versão backend-first do CHS Recruta, separada do portfólio principal para facilitar avaliação técnica, execução local e deploy.
+A fonte permanente do produto é [docs/PRODUCT_PURPOSE.md](docs/PRODUCT_PURPOSE.md).
+
+## Implementado neste marco
+
+- tenants, usuários globais e memberships por empresa;
+- sete papéis e permissões por ação;
+- filtros por tenant e PostgreSQL Row-Level Security;
+- Alembic, auditoria estruturada, request ID e soft delete;
+- frontend operacional responsivo, busca, cinco paletas e claro/escuro;
+- tutorial por permissão com transições, redução de movimento e **Não exibir novamente** persistente;
+- candidatos, vagas, candidaturas independentes e pipeline ATS;
+- departamentos, colaboradores, onboarding e benefícios;
+- ponto com hash de integridade e holerites com acesso individual;
+- assistente baseado em fontes autorizadas, citações e abstenção;
+- testes de isolamento, RBAC, auditoria, tutorial e privacidade.
+
+O [estado de implementação](docs/IMPLEMENTATION_STATUS.md) separa o que funciona do que ainda depende de integração ou homologação. O sistema não se apresenta como REP-P certificado, motor de folha homologado ou conector oficial do eSocial.
 
 ## Stack
 
-`Python` · `FastAPI` · `SQLAlchemy 2` · `PostgreSQL` · `Pydantic` · `Pytest` · `Docker` · `GitHub Actions`
-
-## Funcionalidades
-
-- autenticação por sessão bearer e RBAC (`admin` / `recruiter`);
-- CRUD de candidatos e vagas;
-- normalização de profissão e detecção de duplicidade;
-- matching candidato ↔ vaga;
-- dashboard e funil de recrutamento;
-- referências financeiras;
-- trilha de auditoria;
-- exportação CSV;
-- interface web simples;
-- documentação OpenAPI em `/docs`.
+Python 3.12 · FastAPI · SQLAlchemy 2 · Alembic · PostgreSQL 17 · Pydantic 2 · JavaScript modular · Pytest · Docker
 
 ## Executar localmente
 
 ```bash
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-# Linux/macOS: source .venv/bin/activate
+source .venv/bin/activate
 pip install -r requirements.txt
+export DATABASE_URL=sqlite:///./chs_recruta.db
+alembic upgrade head
 python -m app.seed
 uvicorn app.main:app --reload
 ```
 
 Acesse:
 
-- aplicação: `http://127.0.0.1:8000`
-- OpenAPI: `http://127.0.0.1:8000/docs`
-- healthcheck: `http://127.0.0.1:8000/health`
+- aplicação: http://127.0.0.1:8000
+- OpenAPI: http://127.0.0.1:8000/docs
+- saúde: http://127.0.0.1:8000/health
 
-As credenciais locais do seed são controladas por `DEMO_ADMIN_USERNAME`, `DEMO_ADMIN_PASSWORD` e `DEMO_ADMIN_EMAIL`. Use o seed apenas para desenvolvimento/demonstração e não publique credenciais de administrador em produção.
+Seed local: `demo` / `demo12345`, empresa `empresa-demo`. Nunca use essas credenciais em produção.
 
 ## Docker
 
@@ -46,57 +50,50 @@ As credenciais locais do seed são controladas por `DEMO_ADMIN_USERNAME`, `DEMO_
 docker compose up --build
 ```
 
+O Compose sobe PostgreSQL, aplica migrations, cria o tenant demonstrativo e inicia a API.
+
+## Configuração
+
+| Variável | Padrão | Uso |
+|---|---|---|
+| `APP_ENV` | development | use production no ambiente público |
+| `DATABASE_URL` | SQLite local | use PostgreSQL persistente em produção |
+| `SESSION_TTL_HOURS` | 12 | expiração da sessão |
+| `ALLOWED_ORIGINS` | localhost | origens CORS |
+| `AUTO_CREATE_SCHEMA` | SQLite dev | em produção use false + Alembic |
+| `TUTORIAL_VERSION` | 1 | reapresenta conteúdo novo |
+| `SEED_DEMO` | false | somente ambiente descartável |
+
 ## Testes
 
 ```bash
+python -m compileall -q app
 python -m pytest -q
+node --check static/app.js
 ```
 
-A CI executa compilação do pacote e testes em cada push/PR.
-
-## Persistência
-
-A aplicação lê `DATABASE_URL`. Em desenvolvimento, quando ela não é definida, usa SQLite local. Em ambiente público/produção, configure PostgreSQL persistente. O deployment de portfólio é preparado para usar PostgreSQL externo sem gravar a string de conexão no repositório.
-
-## Segurança
-
-- PBKDF2-HMAC-SHA256 com salt aleatório;
-- tokens de sessão aleatórios, persistindo apenas o hash;
-- expiração e revogação de sessões;
-- rotas protegidas por autenticação;
-- ações administrativas protegidas por role;
-- auditoria vinculada ao usuário autenticado.
-
-## Arquitetura
+## Estrutura
 
 ```text
 app/
-├── main.py
-├── database.py
-├── models.py
-├── schemas.py
-├── security.py
-├── services.py
-└── routers/
-    ├── auth.py
-    ├── candidates.py
-    ├── vacancies.py
-    ├── operations.py
-    └── users.py
-
+├── config.py, database.py, models.py, schemas.py
+├── permissions.py, security.py, services.py
+├── main.py, seed.py
+└── routers/saas.py
+migrations/
 static/
 tests/
 docs/
 ```
 
-## Deploy
+## Documentação
 
-O repositório inclui `vercel.json`, além de `Dockerfile` e `docker-compose.yml`. Uma URL só deve ser apresentada aqui como backend público após healthcheck externo bem-sucedido.
+- [Propósito permanente](docs/PRODUCT_PURPOSE.md)
+- [Manual completo](docs/USER_MANUAL.md)
+- [Arquitetura](docs/ARCHITECTURE.md)
+- [Estado e próximos gates](docs/IMPLEMENTATION_STATUS.md)
+- [Roadmap mestre](docs/MELHORIAS_E_ROADMAP.md)
 
-## Evoluções futuras
+## Produção
 
-A versão atual é executável e avaliável no escopo descrito acima. Possíveis extensões de produto e engenharia, explicitamente **fora do escopo atual**, estão em [`docs/MELHORIAS_E_ROADMAP.md`](docs/MELHORIAS_E_ROADMAP.md).
-
-## Desenvolvimento assistido por IA
-
-Ferramentas de IA foram usadas para acelerar pesquisa, implementação, revisão e documentação. As decisões de escopo, arquitetura, validação, testes e revisão técnica permanecem sob responsabilidade do autor.
+Antes de dados reais: TLS, secrets manager, backups restaurados, PostgreSQL gerenciado, MFA/SSO conforme risco, object storage privado, rate limit, observabilidade, scans, pentest e revisão LGPD/jurídico-contábil.
