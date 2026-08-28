@@ -8,6 +8,7 @@ from app import models  # noqa: F401
 from app import advanced_models  # noqa: F401
 from app import portal_models  # noqa: F401
 from app import workforce_models  # noqa: F401
+from app import time_payroll_models  # noqa: F401
 config=context.config
 if config.config_file_name: fileConfig(config.config_file_name)
 config.set_main_option("sqlalchemy.url",get_settings().database_url)
