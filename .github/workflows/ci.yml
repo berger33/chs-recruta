@@ -16,4 +16,6 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: python -m compileall -q app
+      - run: node --check static/app.js
+      - run: DATABASE_URL=sqlite:////tmp/chs-migration.db alembic upgrade head
       - run: python -m pytest -q
