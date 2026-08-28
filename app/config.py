@@ -30,6 +30,6 @@ def get_settings() -> Settings:
         database_url=database_url,
         session_ttl_hours=max(1, int(os.getenv("SESSION_TTL_HOURS", "12"))),
         auto_create_schema=_as_bool(os.getenv("AUTO_CREATE_SCHEMA"), database_url.startswith("sqlite") and environment != "production"),
-        tutorial_version=max(1, int(os.getenv("TUTORIAL_VERSION", "1"))),
+        tutorial_version=max(1, int(os.getenv("TUTORIAL_VERSION", "2"))),
         allowed_origins=origins,
     )

@@ -155,10 +155,6 @@ views.billing = async function billing() {
   });
 };
 
-$$('#nav [data-view]').filter(button => ["atsAdvanced", "contracts", "performance", "esocial", "billing"].includes(button.dataset.view)).forEach(button => {
-  button.addEventListener("click", () => document.startViewTransition ? document.startViewTransition(() => render(button.dataset.view)) : render(button.dataset.view));
-});
-
 document.addEventListener("chs:ready", event => {
   const permissions = new Set(event.detail.permissions);
   $$('#nav [data-view]').forEach(button => {

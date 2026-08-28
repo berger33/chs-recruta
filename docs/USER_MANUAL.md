@@ -1,6 +1,6 @@
 # Manual de uso — CHS RH
 
-**Versão:** 1.0  
+**Versão:** 1.1
 **Público:** administradores, RH, recrutadores, gestores, colaboradores e auditores  
 **Data:** 28 de agosto de 2026
 
@@ -172,6 +172,32 @@ Cada marcação recebe hash de integridade. Este recurso **não é REP-P homolog
 
 O colaborador vê apenas os próprios registros. O marco atual gerencia metadados; produção precisa de object storage privado, antivírus e URLs assinadas.
 
+## Portal do colaborador
+
+Abra **Meu portal** para visualizar pendências e documentos compatíveis com seu papel.
+
+### Enviar uma solicitação
+
+1. Clique em **+ Solicitação**.
+2. Escolha a categoria, informe assunto, prioridade e descreva a necessidade.
+3. Salve e acompanhe os estados enviado, em análise, aprovado, rejeitado ou concluído.
+4. Enquanto ainda estiver em análise, use **Cancelar** se a demanda deixar de ser necessária.
+5. Gestores veem somente a equipe direta; RH autorizado administra toda a empresa.
+
+### Solicitar férias ou ausência
+
+1. Clique em **Solicitar ausência**.
+2. Escolha férias, folga, licença, afastamento ou outro tipo definido pela empresa.
+3. Informe início, fim e observação necessária.
+4. Envie para análise do gestor/RH e acompanhe a decisão.
+5. O sistema bloqueia outra solicitação enviada/aprovada que se sobreponha ao mesmo período.
+
+O total atual representa dias corridos do intervalo. Saldo, período aquisitivo, feriados, regras sindicais e cálculo oficial ainda precisam de parametrização e validação trabalhista.
+
+### Consultar documentos
+
+Documentos marcados para o colaborador aparecem no portal; arquivos **Somente RH** permanecem ocultos. A publicação atual registra metadados, chave privada e checksum. Download/visualização em produção depende de object storage protegido, antivírus e URL assinada curta.
+
 ## Desempenho
 
 1. O RH abre **Desempenho** e cria um ciclo com início, fim e período de avaliação.
@@ -266,6 +292,8 @@ Em **Configurações**, escolha rosa, ciano, roxo, verde-musgo ou laranja. Claro
 | Possível duplicidade | mesmo nome + contato/registro | atualize o cadastro existente |
 | Perfil não vinculado | User sem Employee | RH cria ou vincula matrícula |
 | Documento já existe | competência/tipo repetidos | revise o lote |
+| Ausência sobreposta | solicitação ativa no período | revise ou cancele a solicitação anterior |
+| Portal sem perfil | acesso não vinculado à matrícula | RH vincula User e Employee na empresa correta |
 | Assistente sem fonte | nenhuma fonte autorizada | consulte o RH |
 | Evento eSocial rejeitado | validação ou retorno do adapter | confira erro, origem e chave idempotente |
 | Fatura interna em aberto | sem confirmação do gateway | reconcilie pelo identificador externo |
