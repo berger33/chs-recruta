@@ -10,6 +10,7 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 
 | Área | Estado do marco | Próximo gate |
 |---|---|---|
+| Identidade | Argon2id, upgrade PBKDF2, MFA TOTP/recovery, reset SMTP, lock/rate limit, sessões avançadas e JIT auditável | WebAuthn/passkeys, SSO/SCIM, Redis e IdP enterprise |
 | Multiempresa | tenant, membership e sessão tenant-bound | convite, unidades e console SaaS |
 | Isolamento | filtros + PostgreSQL RLS + teste negativo | CI com PostgreSQL real |
 | Permissões | 7 papéis, ações e escopo próprio/equipe | RBAC configurável + ABAC |
@@ -32,12 +33,25 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 ## Gate de produção da fundação
 
 1. PostgreSQL gerenciado em staging e teste de RLS no CI;
-2. MFA, recuperação de senha e rate limit;
+2. configurar SMTP/secrets manager e levar rate limit para Redis compartilhado;
 3. logs, métricas, traces, alertas e runbooks;
 4. object storage privado e pipeline de arquivos;
 5. backup/PITR com restauração evidenciada;
 6. lint, type check, SAST, scans, SBOM e pentest;
 7. políticas LGPD, retenção, anonimização e direitos do titular.
+
+## Segurança de identidade entregue
+
+- senhas novas em Argon2id, mínimo de 15 caracteres e rehash transparente do PBKDF2 legado;
+- MFA TOTP, prevenção de reutilização do mesmo código e códigos de recuperação de uso único;
+- recuperação sem enumeração de conta, token único de 20 minutos e encerramento das sessões existentes;
+- bloqueio temporário após cinco tentativas inválidas e limites persistentes por IP/identidade;
+- sessões opacas por dispositivo, cookie HttpOnly + CSRF para o frontend, Bearer opcional para integrações, limite absoluto/inatividade e revogação;
+- eventos de segurança separados da auditoria de negócio;
+- acesso privilegiado JIT restrito à empresa ativa, com motivo, duração, MFA recente, aprovação independente e sessão revogável;
+- frontend operacional e tutorial/manual atualizados para todos esses fluxos.
+
+O ambiente público falha na inicialização sem `SECURITY_SECRET_KEY`, SMTP transacional e `PASSWORD_RESET_URL` HTTPS com token no fragmento. A aplicação não devolve token de recuperação em produção. O rate limit atual é persistente no banco e funciona em múltiplas instâncias conectadas ao mesmo banco; Redis é o próximo gate de escala. TOTP não é declarado resistente a phishing.
 
 ## Próximo produto vendável
 

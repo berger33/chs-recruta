@@ -1,6 +1,6 @@
 # Manual de uso — CHS RH
 
-**Versão:** 1.3
+**Versão:** 1.4
 **Público:** administradores, RH, recrutadores, gestores, colaboradores e auditores  
 **Data:** 28 de agosto de 2026
 
@@ -14,7 +14,7 @@
 4. Se tiver acesso a várias organizações, informe ou selecione a empresa correta.
 5. Clique em **Entrar com segurança**.
 
-No ambiente local demonstrativo, use `demo` / `demo12345` e `empresa-demo`. Nunca mantenha essas credenciais em produção.
+No ambiente local demonstrativo, o usuário é `demo` e a empresa é `empresa-demo`. A senha é definida pelo administrador em `DEMO_ADMIN_PASSWORD` e nunca fica publicada no repositório.
 
 ### Tutorial de primeiro acesso
 
@@ -37,6 +37,73 @@ O tutorial destaca elementos reais, muda de módulo quando necessário e reduz a
 - O ícone de meio círculo alterna claro/escuro.
 - No celular, o menu abre pelo cabeçalho.
 - **Sair** revoga a sessão atual.
+
+## Segurança da conta
+
+Todas as pessoas têm acesso a **Segurança da conta**. As operações são aplicadas ao usuário global; eventos e acessos privilegiados continuam vinculados à empresa correta.
+
+### Habilitar autenticação em duas etapas (MFA)
+
+1. Abra **Segurança da conta**.
+2. Em **Autenticação em duas etapas**, clique em **Habilitar MFA**.
+3. Confirme sua senha atual.
+4. No aplicativo autenticador de sua preferência, adicione uma conta pela chave manual ou URI exibida.
+5. Informe o primeiro código de seis dígitos para concluir.
+6. Copie os códigos de recuperação exibidos uma única vez e guarde-os fora do computador e do celular usados para entrar.
+
+Após habilitar ou desabilitar MFA, as outras sessões são encerradas. No próximo login, a senha válida abre um desafio de cinco minutos. Informe o código do aplicativo; se perder o autenticador, use um código de recuperação, que é consumido no primeiro uso. Um mesmo código TOTP não pode ser reutilizado.
+
+Use **Novos códigos** para invalidar o conjunto anterior e gerar outro. Essa operação exige senha e MFA. Use **Desabilitar MFA** somente quando necessário; ela também exige os dois fatores. TOTP melhora a proteção, mas códigos ainda podem ser capturados por phishing: nunca os informe fora da tela oficial do CHS RH.
+
+### Recuperar uma senha
+
+1. Na tela de entrada, informe usuário ou e-mail.
+2. Clique em **Esqueci minha senha**.
+3. A tela sempre apresenta a mesma confirmação, exista ou não a conta; isso evita exposição de usuários cadastrados.
+4. Abra o link enviado ao e-mail e crie uma senha com ao menos 15 caracteres.
+5. Confirme a nova senha e entre novamente.
+
+O link expira em 20 minutos, funciona uma vez e é invalidado quando um novo pedido é criado. A redefinição encerra todas as sessões. Em desenvolvimento, o sistema pode abrir o formulário diretamente; em produção, o administrador deve configurar o SMTP e o endereço público correto.
+
+### Bloqueio e tentativas excessivas
+
+Após cinco falhas de senha, a conta fica bloqueada por 15 minutos. A resposta continua genérica para não confirmar a existência da conta. Além disso, login, MFA, recuperação, redefinição e confirmação de identidade têm limites por IP ou identidade. Se aparecer **Muitas tentativas**, aguarde o período indicado e não repita automaticamente.
+
+### Alterar a senha
+
+1. Abra **Segurança da conta** e clique em **Alterar senha**.
+2. Informe a senha atual, uma nova senha de ao menos 15 caracteres e a confirmação.
+3. Se MFA estiver ativo, informe também o código.
+4. Salve. As outras sessões serão encerradas.
+
+Prefira uma frase-senha longa e exclusiva. O sistema rejeita senhas comuns e combinações que contenham partes óbvias do usuário, nome ou e-mail.
+
+### Revisar e encerrar sessões
+
+Em **Sessões e dispositivos**, confira dispositivo, IP, último uso, vencimento, estado e indicação de acesso privilegiado.
+
+- **Encerrar** revoga um dispositivo específico.
+- **Encerrar todas as outras** preserva apenas a sessão atual.
+- **Sair** encerra a sessão atual.
+
+Sessões também expiram depois de 60 minutos sem atividade ou 12 horas no total, salvo configuração mais restritiva. Há no máximo cinco sessões ativas por usuário; as mais antigas são encerradas quando o limite é excedido.
+
+### Solicitar acesso privilegiado temporário
+
+Use este fluxo para uma necessidade excepcional sem ampliar permanentemente o papel:
+
+1. Habilite MFA e clique em **Confirmar identidade**. A confirmação vale por dez minutos.
+2. Em **Acesso privilegiado temporário**, clique em **Solicitar acesso**.
+3. Escolha uma permissão que seu papel ainda não possui, defina duração entre 5 e 120 minutos e descreva um motivo verificável com pelo menos 15 caracteres.
+4. Outro proprietário ou administrador, nunca o próprio solicitante, revisa o pedido e registra uma justificativa.
+5. Depois da aprovação, clique em **Ativar**. O sistema abre uma sessão separada e mostra o vencimento no cabeçalho da página.
+6. Ao terminar, clique em **Revogar** ou saia. O vencimento ou a revogação invalida todas as sessões vinculadas à concessão.
+
+A elevação só funciona dentro de uma empresa à qual o usuário já pertence. Ela não cria acesso cruzado entre clientes e não permite suporte por impersonação silenciosa.
+
+### Revisar eventos de segurança
+
+A lista final mostra tipo, resultado, data/hora, IP e request ID. Usuários comuns veem os próprios eventos; proprietário e administrador com `security.manage` veem eventos da empresa ativa. Use o request ID para investigação sem compartilhar senha, código MFA, token ou código de recuperação.
 
 ## Papéis
 

@@ -1,6 +1,6 @@
 # Arquitetura do CHS RH
 
-**Versão:** 1.0  
+**Versão:** 1.1
 **Data:** 28 de agosto de 2026
 
 ## Decisão central
@@ -44,7 +44,7 @@ sequenceDiagram
     participant A as API
     participant P as Permissões
     participant D as PostgreSQL
-    U->>A: Bearer token
+    U->>A: Cookie HttpOnly ou Bearer
     A->>A: Resolve sessão e membership
     A->>D: Ativa tenant na transação
     A->>P: Verifica ação
@@ -57,15 +57,26 @@ Memberships e sessões ficam fora da RLS porque são usadas para descobrir o ten
 
 ## Identidade e autorização
 
-- PBKDF2-HMAC-SHA256 com salt aleatório e 600 mil iterações;
-- token opaco; somente o SHA-256 é persistido;
-- sessão expira e pode ser revogada;
+- Argon2id para novas senhas e migração transparente dos hashes PBKDF2 legados após login válido;
+- senha nova com no mínimo 15 caracteres, bloqueio de valores comuns e rejeição de partes óbvias da identidade;
+- MFA TOTP com segredo criptografado, prevenção de replay e códigos de recuperação de uso único armazenados como HMAC;
+- recuperação com resposta não enumerável, token aleatório de uso único, validade curta, revogação de sessões e entrega SMTP configurável;
+- bloqueio temporário após cinco falhas e rate limit persistente por IP/identidade nas rotas sensíveis;
+- token de sessão opaco; somente SHA-256 é persistido, com dispositivo, IP, user agent, último uso e motivo de revogação;
+- navegador usa cookie `HttpOnly`, `SameSite=Strict` e `Secure` em produção, acompanhado por proteção CSRF; clientes de API podem usar Bearer;
+- sessão tem limite absoluto, expiração por inatividade, máximo por usuário e revogação individual ou global;
 - membership por usuário e empresa;
 - papéis: proprietário, administrador, RH, recrutador, gestor, colaborador e auditor;
 - permissões por ação verificadas no backend;
 - ponto e holerite diferenciam acesso próprio de gestão de equipe.
 
-Antes de produção ampla: recuperação de senha, MFA, rate limit, sessões por dispositivo, SSO/SCIM e políticas por unidade/equipe.
+### Acesso privilegiado
+
+A elevação just-in-time somente amplia uma membership já existente no tenant. O solicitante informa permissões, motivo e duração de 5 a 120 minutos, confirma MFA recente e precisa da decisão de outro proprietário/administrador também com MFA recente. A ativação cria uma sessão separada, limitada ao menor vencimento, e toda solicitação, decisão, ativação, expiração ou revogação deixa evidência. O aprovador não pode aprovar o próprio pedido e não existe impersonação silenciosa.
+
+TOTP reduz risco de senha roubada, mas não é resistente a phishing. WebAuthn/passkeys, SSO/SCIM, política de senha comprometida por serviço especializado, rate limit distribuído e políticas por unidade/equipe continuam como evoluções enterprise.
+
+As escolhas acompanham [NIST SP 800-63B](https://pages.nist.gov/800-63-4/sp800-63b.html), [OWASP Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html), [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html) e [OWASP Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html).
 
 ## Auditoria
 

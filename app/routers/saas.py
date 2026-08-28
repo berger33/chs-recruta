@@ -1,18 +1,19 @@
 from __future__ import annotations
-import csv,io
-from datetime import UTC,datetime
+import csv,hashlib,io,secrets
+from datetime import UTC,datetime,timedelta
 from typing import Annotated
-from fastapi import APIRouter,Depends,HTTPException,Query,Request,status
+from fastapi import APIRouter,Depends,HTTPException,Query,Request,Response,status
 from fastapi.responses import StreamingResponse
 from sqlalchemy import or_,select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from ..config import get_settings
 from ..database import get_db
+from ..identity_models import MfaLoginChallenge,UserMfa
 from ..models import *
 from ..permissions import Permission,permissions_for_role
 from ..schemas import *
-from ..security import AuthContext,active_memberships,bearer,current_context,find_user,hash_password,issue_session,require_permissions,revoke_session,verify_password
+from ..security import AuthContext,active_memberships,attach_session_cookies,bearer,clear_session_cookies,client_ip,consume_rate_limit,current_context,find_user,hash_password,issue_session,password_needs_rehash,record_security_event,rehash_verified_password,require_permissions,revoke_session,session_token_from_request,utcnow,validate_password,verify_password
 from ..services import audit,dashboard,knowledge_answer,model_snapshot,normalize_profession,possible_duplicate,search_candidates,time_entry_hash
 
 router=APIRouter()
@@ -22,7 +23,7 @@ def tutorial_state(m):
     return TutorialState(current_version=version,version_seen=m.tutorial_version_seen,dismissed=m.tutorial_dismissed,should_show=not m.tutorial_dismissed and m.tutorial_version_seen<version)
 def tenant_summary(m): return TenantSummary(id=m.tenant.id,name=m.tenant.name,slug=m.tenant.slug,role=m.role)
 def context_payload(c):
-    return ContextRead(user_id=c.user.id,username=c.user.username,display_name=c.user.display_name,email=c.user.email,role=c.membership.role,tenant=tenant_summary(c.membership),permissions=sorted(x.value for x in c.permissions),tutorial=tutorial_state(c.membership))
+    return ContextRead(user_id=c.user.id,username=c.user.username,display_name=c.user.display_name,email=c.user.email,role=c.membership.role,tenant=tenant_summary(c.membership),permissions=sorted(x.value for x in c.permissions),tutorial=tutorial_state(c.membership),mfa_verified=c.session.mfa_verified,privileged_until=c.session.expires_at if c.session.privileged_grant_id else None)
 def member_payload(m): return MembershipRead(id=m.id,user_id=m.user.id,username=m.user.username,display_name=m.user.display_name,email=m.user.email,role=m.role,active=m.active)
 def scoped(db,model,tenant_id,object_id,detail):
     obj=db.scalar(select(model).where(model.id==object_id,model.tenant_id==tenant_id))
@@ -48,23 +49,51 @@ def time_employee_scope(db,c):
     elif Permission.time_own not in c.permissions: raise HTTPException(403,"Permissão insuficiente")
     return allowed
 
-@router.post("/api/auth/login",response_model=LoginResponse,tags=["auth"])
-def login(payload:LoginRequest,db:Annotated[Session,Depends(get_db)]):
+@router.post("/api/auth/login",response_model=LoginResponse|MfaRequiredResponse,tags=["auth"])
+def login(payload:LoginRequest,request:Request,response:Response,db:Annotated[Session,Depends(get_db)]):
+    consume_rate_limit(db,scope="login_ip",key=client_ip(request),limit=20,window=timedelta(minutes=5))
+    consume_rate_limit(db,scope="login_identity",key=payload.identifier.strip(),limit=8,window=timedelta(minutes=15))
     user=find_user(db,payload.identifier)
-    if not user or not user.active or not verify_password(payload.password,user.password_hash): raise HTTPException(401,"Credenciais inválidas")
+    current=utcnow()
+    if user and user.locked_until and user.locked_until<=current:
+        user.locked_until=None; user.failed_login_attempts=0
+    if not user or not user.active or (user.locked_until and user.locked_until>current) or not verify_password(payload.password,user.password_hash):
+        if user and user.active and not (user.locked_until and user.locked_until>current):
+            user.failed_login_attempts+=1
+            if user.failed_login_attempts>=5: user.locked_until=current+timedelta(minutes=15)
+        record_security_event(db,request,event_type="login",outcome="denied",user_id=user.id if user else None,details={"locked":bool(user and user.locked_until and user.locked_until>current)},commit=True)
+        raise HTTPException(401,"Credenciais inválidas")
     memberships=active_memberships(db,user.id)
     if not memberships: raise HTTPException(403,"Usuário sem empresa ativa")
     selected=memberships[0]
     if payload.tenant_slug:
         selected=next((x for x in memberships if x.tenant.slug==payload.tenant_slug),None)
         if not selected: raise HTTPException(403,"Empresa não autorizada")
-    token=issue_session(db,user,selected)
-    return LoginResponse(token=token,user_id=user.id,username=user.username,display_name=user.display_name,email=user.email,role=selected.role,tenant=tenant_summary(selected),tenants=[tenant_summary(x) for x in memberships],permissions=sorted(x.value for x in permissions_for_role(selected.role.value)),tutorial=tutorial_state(selected))
+    user.failed_login_attempts=0; user.locked_until=None
+    if password_needs_rehash(user.password_hash): user.password_hash=rehash_verified_password(payload.password)
+    mfa=db.get(UserMfa,user.id)
+    if mfa and mfa.enabled:
+        challenge_token=secrets.token_urlsafe(48)
+        db.add(MfaLoginChallenge(token_hash=hashlib.sha256(challenge_token.encode()).hexdigest(),user_id=user.id,membership_id=selected.id,tenant_id=selected.tenant_id,expires_at=current+timedelta(minutes=5),ip_address=client_ip(request),user_agent=request.headers.get("user-agent","")[:500]))
+        record_security_event(db,request,event_type="login_mfa_challenge",outcome="pending",user_id=user.id,tenant_id=selected.tenant_id)
+        db.commit()
+        return MfaRequiredResponse(challenge_token=challenge_token)
+    user.last_login_at=current
+    record_security_event(db,request,event_type="login",outcome="success",user_id=user.id,tenant_id=selected.tenant_id)
+    token=issue_session(db,user,selected,request=request,mfa_verified=False)
+    attach_session_cookies(response,token)
+    browser=request.headers.get("x-session-mode","").lower()=="cookie"
+    return LoginResponse(token=None if browser else token,user_id=user.id,username=user.username,display_name=user.display_name,email=user.email,role=selected.role,tenant=tenant_summary(selected),tenants=[tenant_summary(x) for x in memberships],permissions=sorted(x.value for x in permissions_for_role(selected.role.value)),tutorial=tutorial_state(selected))
 @router.get("/api/auth/me",response_model=ContextRead,tags=["auth"])
 def me(c:Annotated[AuthContext,Depends(current_context)]): return context_payload(c)
 @router.post("/api/auth/logout",status_code=204,tags=["auth"])
-def logout(credentials=Depends(bearer),db:Session=Depends(get_db)):
-    if credentials: revoke_session(db,credentials.credentials)
+def logout(request:Request,response:Response,credentials=Depends(bearer),db:Session=Depends(get_db)):
+    raw=session_token_from_request(request,credentials)
+    if raw:
+        token=revoke_session(db,raw,commit=False)
+        if token: record_security_event(db,request,event_type="logout",outcome="success",user_id=token.user_id,tenant_id=token.tenant_id)
+        db.commit()
+    clear_session_cookies(response)
 
 @router.get("/api/tenants",response_model=list[TenantSummary],tags=["tenants"])
 def tenants(c:Annotated[AuthContext,Depends(current_context)],db:Annotated[Session,Depends(get_db)]): return [tenant_summary(x) for x in active_memberships(db,c.user.id)]
@@ -76,11 +105,15 @@ def tenant_update(payload:TenantUpdate,request:Request,c:Annotated[AuthContext,D
     for key,value in payload.model_dump(exclude_unset=True).items(): setattr(c.tenant,key,value)
     audit(db,context=c,request=request,action="update",entity="tenant",entity_id=str(c.tenant.id),before=before,after=model_snapshot(c.tenant)); db.commit(); db.refresh(c.tenant); return c.tenant
 @router.post("/api/tenants/switch",response_model=LoginResponse,tags=["tenants"])
-def tenant_switch(payload:TenantSwitchRequest,c:Annotated[AuthContext,Depends(current_context)],db:Annotated[Session,Depends(get_db)]):
+def tenant_switch(payload:TenantSwitchRequest,request:Request,response:Response,c:Annotated[AuthContext,Depends(current_context)],db:Annotated[Session,Depends(get_db)]):
     m=db.scalar(select(Membership).where(Membership.user_id==c.user.id,Membership.tenant_id==payload.tenant_id,Membership.active.is_(True))); tenant=db.get(Tenant,payload.tenant_id)
     if not m or not tenant or not tenant.active: raise HTTPException(403,"Empresa não autorizada")
-    token=issue_session(db,c.user,m); memberships=active_memberships(db,c.user.id)
-    return LoginResponse(token=token,user_id=c.user.id,username=c.user.username,display_name=c.user.display_name,email=c.user.email,role=m.role,tenant=tenant_summary(m),tenants=[tenant_summary(x) for x in memberships],permissions=sorted(x.value for x in permissions_for_role(m.role.value)),tutorial=tutorial_state(m))
+    c.session.revoked_at=utcnow(); c.session.revoke_reason="Troca de empresa"
+    token=issue_session(db,c.user,m,request=request,mfa_verified=c.session.mfa_verified,commit=False); memberships=active_memberships(db,c.user.id)
+    record_security_event(db,request,event_type="tenant_switch",outcome="success",user_id=c.user.id,tenant_id=m.tenant_id,details={"from_tenant_id":c.tenant_id}); db.commit()
+    attach_session_cookies(response,token)
+    browser=request.headers.get("x-session-mode","").lower()=="cookie"
+    return LoginResponse(token=None if browser else token,user_id=c.user.id,username=c.user.username,display_name=c.user.display_name,email=c.user.email,role=m.role,tenant=tenant_summary(m),tenants=[tenant_summary(x) for x in memberships],permissions=sorted(x.value for x in permissions_for_role(m.role.value)),tutorial=tutorial_state(m))
 @router.put("/api/tenants/tutorial",tags=["tenants"])
 def tutorial_update(payload:TutorialPreferenceUpdate,request:Request,c:Annotated[AuthContext,Depends(current_context)],db:Annotated[Session,Depends(get_db)]):
     before={"version_seen":c.membership.tutorial_version_seen,"dismissed":c.membership.tutorial_dismissed}
@@ -99,7 +132,11 @@ def user_create(payload:UserCreate,request:Request,c:Annotated[AuthContext,Depen
     email=str(payload.email).lower(); user=db.scalar(select(User).where(or_(User.username==payload.username.lower(),User.email==email)))
     if user and (user.username!=payload.username.lower() or user.email!=email): raise HTTPException(409,"Usuário ou e-mail já está em uso")
     if not user:
-        user=User(username=payload.username.lower(),display_name=payload.display_name,email=email,password_hash=hash_password(payload.password)); db.add(user); db.flush()
+        try:
+            prospective=User(username=payload.username.lower(),display_name=payload.display_name,email=email,password_hash="")
+            validate_password(payload.password,prospective); password_hash=hash_password(payload.password)
+        except ValueError as error: raise HTTPException(422,str(error)) from error
+        user=User(username=payload.username.lower(),display_name=payload.display_name,email=email,password_hash=password_hash); db.add(user); db.flush()
     if db.scalar(select(Membership).where(Membership.tenant_id==c.tenant_id,Membership.user_id==user.id)): raise HTTPException(409,"Usuário já pertence a esta empresa")
     m=Membership(tenant_id=c.tenant_id,user_id=user.id,role=payload.role); db.add(m); db.flush()
     audit(db,context=c,request=request,action="create",entity="membership",entity_id=str(m.id),details=f"{user.email} ({m.role.value})",after=model_snapshot(m)); db.commit(); db.refresh(m); return member_payload(m)

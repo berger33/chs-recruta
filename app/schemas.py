@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import date,datetime
 from decimal import Decimal
+from typing import Literal
 from pydantic import BaseModel,ConfigDict,EmailStr,Field,field_validator
 from .models import ApplicationStage,CandidateStatus,EmploymentStatus,KnowledgeVisibility,Role,TaskStatus,TimeEntryKind,VacancyStatus
 
@@ -9,8 +10,9 @@ class TenantSummary(ORMModel): id:int; name:str; slug:str; role:Role
 class TutorialState(BaseModel): current_version:int; version_seen:int; dismissed:bool; should_show:bool
 class LoginRequest(BaseModel): identifier:str=Field(min_length=3,max_length=160); password:str=Field(min_length=8,max_length=256); tenant_slug:str|None=Field(default=None,max_length=100)
 class LoginResponse(BaseModel):
-    token:str; token_type:str="bearer"; user_id:int; username:str; display_name:str; email:str; role:Role; tenant:TenantSummary; tenants:list[TenantSummary]; permissions:list[str]; tutorial:TutorialState
-class ContextRead(BaseModel): user_id:int; username:str; display_name:str; email:str; role:Role; tenant:TenantSummary; permissions:list[str]; tutorial:TutorialState
+    token:str|None=None; token_type:str="bearer"; mfa_required:Literal[False]=False; user_id:int; username:str; display_name:str; email:str; role:Role; tenant:TenantSummary; tenants:list[TenantSummary]; permissions:list[str]; tutorial:TutorialState
+class MfaRequiredResponse(BaseModel): mfa_required:Literal[True]=True; challenge_token:str; expires_in:int=300
+class ContextRead(BaseModel): user_id:int; username:str; display_name:str; email:str; role:Role; tenant:TenantSummary; permissions:list[str]; tutorial:TutorialState; mfa_verified:bool=False; privileged_until:datetime|None=None
 class TenantRead(ORMModel):
     id:int; name:str; slug:str; legal_name:str; tax_id:str; timezone:str; locale:str; theme:str; active:bool; created_at:datetime; updated_at:datetime
 class TenantUpdate(BaseModel):
@@ -53,5 +55,5 @@ class FinancialCreate(BaseModel): service:str=Field(min_length=2,max_length=160)
 class FinancialRead(FinancialCreate,ORMModel): id:int
 class DashboardRead(BaseModel): candidates:int; new_candidates:int; open_vacancies:int; open_positions:int; applications:int; hires:int; employees:int; onboarding_pending:int; conversion_rate:float; funnel:dict[str,int]
 class AuditRead(ORMModel): id:int; action:str; entity:str; entity_id:str; actor:str; request_id:str; ip_address:str; details:str; before_data:dict|None; after_data:dict|None; created_at:datetime
-class UserCreate(BaseModel): username:str=Field(min_length=3,max_length=80); display_name:str=Field(min_length=2,max_length=120); email:EmailStr; password:str=Field(min_length=8,max_length=256); role:Role=Role.employee
+class UserCreate(BaseModel): username:str=Field(min_length=3,max_length=80); display_name:str=Field(min_length=2,max_length=120); email:EmailStr; password:str=Field(min_length=15,max_length=256); role:Role=Role.employee
 class MembershipRead(BaseModel): id:int; user_id:int; username:str; display_name:str; email:str; role:Role; active:bool
