@@ -8,8 +8,8 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from .config import get_settings
 from .database import Base,engine
-from . import advanced_models, portal_models  # noqa: F401 - register metadata before bootstrap
-from .routers import employee_portal, integrations_billing, people_advanced, performance, recruiting_advanced, saas
+from . import advanced_models, portal_models, workforce_models  # noqa: F401 - register metadata
+from .routers import employee_portal, integrations_billing, people_advanced, performance, recruiting_advanced, saas, workforce_advanced
 
 ROOT=Path(__file__).resolve().parents[1]; STATIC=ROOT/"static"; settings=get_settings()
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(people_advanced.router)
 app.include_router(performance.router)
 app.include_router(integrations_billing.router)
 app.include_router(employee_portal.router)
+app.include_router(workforce_advanced.router)
 app.mount("/static",StaticFiles(directory=STATIC),name="static")
 @app.get("/health")
 def health(): return {"status":"ok","service":"chs-rh","version":"3.0.0"}

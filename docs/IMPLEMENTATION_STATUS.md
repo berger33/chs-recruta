@@ -20,8 +20,8 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 | ATS | candidatos, vagas, pipeline, requisições/aprovações, entrevistas, scorecards e ofertas | pipeline configurável, portal externo e admissão automática |
 | Core RH | departamentos, colaboradores, contratos e movimentações históricas | unidades, cargos versionados e organograma |
 | Portal | autoescopo, solicitações, férias/ausências, documentos, ponto, holerite e conhecimento | saldo de férias, assinatura e download seguro |
-| Onboarding | tarefas, prazo, responsável e conclusão | templates, dependências e assinatura |
-| Benefícios | catálogo inicial | elegibilidade, adesão e integrações |
+| Onboarding | templates, tarefas relativas, responsáveis, aplicação idempotente e conclusão | dependências, evidências e assinatura |
+| Benefícios | catálogo, elegibilidade por vínculo/departamento/carência e adesões | dependentes, eventos de vida e integrações |
 | Ponto | registro inicial, **não REP-P** | provider homologado, ajustes, espelho e fechamento |
 | Holerites | hub de metadados | object storage, lotes e reconciliação |
 | eSocial | eventos idempotentes, estados, auditoria e UI operacional | XSD, certificado, worker, recibos e homologação |
