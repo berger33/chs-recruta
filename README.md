@@ -16,6 +16,7 @@ A fonte permanente do produto é [docs/PRODUCT_PURPOSE.md](docs/PRODUCT_PURPOSE.
 - requisições e aprovações, entrevistas, scorecards e ofertas;
 - departamentos, colaboradores, onboarding e benefícios;
 - contratos, movimentações, ciclos, metas e avaliações de desempenho;
+- portal do colaborador com solicitações, férias/ausências e documentos por visibilidade;
 - ponto com hash de integridade e holerites com acesso individual;
 - filas idempotentes para eventos eSocial e medição/faturas SaaS internas;
 - assistente baseado em fontes autorizadas, citações e abstenção;
@@ -64,7 +65,7 @@ O Compose sobe PostgreSQL, aplica migrations, cria o tenant demonstrativo e inic
 | `SESSION_TTL_HOURS` | 12 | expiração da sessão |
 | `ALLOWED_ORIGINS` | localhost | origens CORS |
 | `AUTO_CREATE_SCHEMA` | SQLite dev | em produção use false + Alembic |
-| `TUTORIAL_VERSION` | 1 | reapresenta conteúdo novo |
+| `TUTORIAL_VERSION` | 2 | reapresenta conteúdo novo |
 | `SEED_DEMO` | false | somente ambiente descartável |
 
 ## Testes
@@ -74,6 +75,7 @@ python -m compileall -q app
 python -m pytest -q
 node --check static/app.js
 node --check static/advanced.js
+node --check static/portal.js
 ```
 
 ## Estrutura

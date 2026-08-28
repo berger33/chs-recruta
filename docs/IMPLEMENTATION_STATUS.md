@@ -19,7 +19,7 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 | Tutorial | passos por permissão, persistência e redução de movimento | conteúdo por plano |
 | ATS | candidatos, vagas, pipeline, requisições/aprovações, entrevistas, scorecards e ofertas | pipeline configurável, portal externo e admissão automática |
 | Core RH | departamentos, colaboradores, contratos e movimentações históricas | unidades, cargos versionados e organograma |
-| Portal | autoescopo de perfil, ponto, holerite e conhecimento | solicitações, férias e arquivos |
+| Portal | autoescopo, solicitações, férias/ausências, documentos, ponto, holerite e conhecimento | saldo de férias, assinatura e download seguro |
 | Onboarding | tarefas, prazo, responsável e conclusão | templates, dependências e assinatura |
 | Benefícios | catálogo inicial | elegibilidade, adesão e integrações |
 | Ponto | registro inicial, **não REP-P** | provider homologado, ajustes, espelho e fechamento |
@@ -43,7 +43,7 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 
 1. pipeline ATS configurável, portal de candidatos e admissão a partir de oferta aceita;
 2. unidades, cargos versionados, organograma e centros de custo;
-3. solicitações do colaborador, férias, arquivos e assinatura;
+3. saldo/aquisição de férias, object storage, download seguro e assinatura;
 4. adapters de ponto, folha e eSocial com filas e homologação;
 5. RAG com ingestão, embeddings, avaliações e escalonamento;
 6. calibração, feedback contínuo, 9-box e PDI;
