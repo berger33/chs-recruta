@@ -19,6 +19,11 @@
     <button data-view="time" data-any="time.own,time.team" data-tour="time">◷ Ponto</button>
     <button data-view="payroll" data-any="payroll.own,payroll.manage" data-tour="payroll">▤ Holerites</button>
     <button data-view="knowledge" data-permission="knowledge.read" data-tour="knowledge">✦ Assistente</button>
+    <button data-view="atsAdvanced" data-permission="applications.manage" data-tour="ats-advanced">◈ ATS avançado</button>
+    <button data-view="contracts" data-permission="contracts.read" data-tour="contracts">▣ Contratos</button>
+    <button data-view="performance" data-permission="performance.read" data-tour="performance">↗ Desempenho</button>
+    <button data-view="esocial" data-permission="esocial.manage" data-tour="esocial">⇄ eSocial</button>
+    <button data-view="billing" data-permission="billing.manage" data-tour="billing">$ Cobrança SaaS</button>
     <button data-view="audit" data-permission="audit.read" data-tour="audit">◉ Auditoria</button>
     <button data-view="settings" data-permission="tenant.manage" data-tour="settings">⚙ Configurações</button>
   </nav><footer><button id="tutorial-start">? Refazer tutorial</button><button id="logout">↗ Sair</button></footer></aside>
@@ -26,5 +31,5 @@
 </div>
 <dialog id="modal"><form id="modal-form"><header><div><p class="eyebrow" id="modal-eyebrow">Cadastro</p><h2 id="modal-title">Novo registro</h2></div><button type="button" data-close>×</button></header><section id="fields" class="fields"></section><p id="modal-error" class="error" hidden></p><footer><button type="button" data-close>Cancelar</button><button class="primary">Salvar</button></footer></form></dialog>
 <dialog id="tutorial"><div class="progress"><span id="progress"></span></div><p class="eyebrow" id="counter"></p><h2 id="tour-title"></h2><p id="tour-body"></p><label class="check"><input id="dismiss" type="checkbox"> Não exibir novamente após encerrar</label><footer><button id="skip">Pular por agora</button><button id="back">Voltar</button><button class="primary" id="next">Continuar</button></footer></dialog>
-<div id="toasts"></div><script type="module" src="/static/app.js"></script>
+<div id="toasts"></div><script type="module" src="/static/app.js"></script><script type="module" src="/static/advanced.js"></script>
 </body></html>

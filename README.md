@@ -13,8 +13,11 @@ A fonte permanente do produto é [docs/PRODUCT_PURPOSE.md](docs/PRODUCT_PURPOSE.
 - frontend operacional responsivo, busca, cinco paletas e claro/escuro;
 - tutorial por permissão com transições, redução de movimento e **Não exibir novamente** persistente;
 - candidatos, vagas, candidaturas independentes e pipeline ATS;
+- requisições e aprovações, entrevistas, scorecards e ofertas;
 - departamentos, colaboradores, onboarding e benefícios;
+- contratos, movimentações, ciclos, metas e avaliações de desempenho;
 - ponto com hash de integridade e holerites com acesso individual;
+- filas idempotentes para eventos eSocial e medição/faturas SaaS internas;
 - assistente baseado em fontes autorizadas, citações e abstenção;
 - testes de isolamento, RBAC, auditoria, tutorial e privacidade.
 
@@ -70,6 +73,7 @@ O Compose sobe PostgreSQL, aplica migrations, cria o tenant demonstrativo e inic
 python -m compileall -q app
 python -m pytest -q
 node --check static/app.js
+node --check static/advanced.js
 ```
 
 ## Estrutura
@@ -77,6 +81,7 @@ node --check static/app.js
 ```text
 app/
 ├── config.py, database.py, models.py, schemas.py
+├── advanced_models.py, advanced_schemas.py
 ├── permissions.py, security.py, services.py
 ├── main.py, seed.py
 └── routers/saas.py

@@ -17,17 +17,17 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 | Auditoria | diffs, ator, tenant, IP e request ID | append-only/SIEM |
 | Frontend | módulos atuais conectados à API | testes E2E e design system |
 | Tutorial | passos por permissão, persistência e redução de movimento | conteúdo por plano |
-| ATS | candidatos, vagas, candidaturas e pipeline | aprovações, entrevistas, ofertas e portal |
-| Core RH | departamentos, colaboradores e vínculo de acesso | contratos históricos, unidades e organograma |
+| ATS | candidatos, vagas, pipeline, requisições/aprovações, entrevistas, scorecards e ofertas | pipeline configurável, portal externo e admissão automática |
+| Core RH | departamentos, colaboradores, contratos e movimentações históricas | unidades, cargos versionados e organograma |
 | Portal | autoescopo de perfil, ponto, holerite e conhecimento | solicitações, férias e arquivos |
 | Onboarding | tarefas, prazo, responsável e conclusão | templates, dependências e assinatura |
 | Benefícios | catálogo inicial | elegibilidade, adesão e integrações |
 | Ponto | registro inicial, **não REP-P** | provider homologado, ajustes, espelho e fechamento |
 | Holerites | hub de metadados | object storage, lotes e reconciliação |
-| eSocial | arquitetura de adapter planejada | XSD, certificado, filas e homologação |
+| eSocial | eventos idempotentes, estados, auditoria e UI operacional | XSD, certificado, worker, recibos e homologação |
 | RAG | ACL, citações e abstenção | ingestão, embeddings, avaliação e LLM controlado |
-| Desempenho | planejado no propósito | ciclos, metas, feedback e PDI |
-| Billing | assinatura, plano, limites e módulos no domínio | gateway, medição, invoices e dunning |
+| Desempenho | ciclos, metas, avaliações e escopo próprio/equipe | calibração, feedback contínuo, 9-box e PDI |
+| Billing | assinatura, plano, medição e faturas internas | gateway, checkout, webhooks assinados e dunning |
 
 ## Gate de produção da fundação
 
@@ -41,12 +41,12 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 
 ## Próximo produto vendável
 
-1. completar ATS: requisição/aprovação, pipeline configurável, entrevistas, scorecards e ofertas;
-2. converter contratação em admissão sem redigitação;
-3. contratos/vínculos históricos, cargos, unidades e centros de custo;
-4. solicitações do colaborador, férias e documentos;
-5. adapters de ponto e folha com importação idempotente;
-6. RAG com ingestão, embeddings, avaliações e escalonamento;
+1. pipeline ATS configurável, portal de candidatos e admissão a partir de oferta aceita;
+2. unidades, cargos versionados, organograma e centros de custo;
+3. solicitações do colaborador, férias, arquivos e assinatura;
+4. adapters de ponto, folha e eSocial com filas e homologação;
+5. RAG com ingestão, embeddings, avaliações e escalonamento;
+6. calibração, feedback contínuo, 9-box e PDI;
 7. checkout, portal de cobrança, webhooks assinados e inadimplência.
 
 ## Limites explícitos
@@ -54,5 +54,7 @@ Este documento separa produto operacional, fundação e trabalho dependente de i
 - Hash de marcação não transforma a solução em REP-P.
 - O hub de holerites não calcula folha.
 - Subscription não cobra cartões nem emite documento fiscal.
+- Uma fatura interna não prova liquidação financeira.
+- Um evento eSocial `accepted` representa o estado registrado pela aplicação/adaptador; sem conector homologado não equivale a recibo oficial.
 - eSocial, folha e normas trabalhistas exigem validação jurídica, contábil e regulatória atualizada.
 - IA auxilia; contratação, carreira, remuneração e desligamento permanecem decisões humanas.
